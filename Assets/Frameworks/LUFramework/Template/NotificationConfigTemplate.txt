@@ -1,0 +1,20 @@
+﻿/*
+ * 时间 : 2019/7/22
+ * 作者 : LeeroyLin
+ * 项目 : LU框架
+ * 描述 : 通知配置类
+ */
+
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace #NAMESPACE#
+{
+	/// <summary>
+	/// 通知配置类
+	/// </summary>
+	public class NotificationConfig
+	{
+#Config_Item#
+	}
+}

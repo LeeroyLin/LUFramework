@@ -1,0 +1,32 @@
+﻿/*
+ * 时间 : #CREATE_DATE#
+ * 作者 : #DEVELOPER#
+ * 项目 : #PROJ_NAME#
+ * 描述 : #NAMESPACE#表数据 - 转表自动生成
+ */
+
+using System.Collections.Generic;
+
+namespace #NAMESPACE#
+{
+    /// <summary>
+    /// #SCRIPT_NAME#表数据 - 转表自动生成
+    /// </summary>
+	public class #SCRIPT_NAME#
+	{
+        /// <summary>
+        /// 数据
+        /// </summary>
+        public static List<#SCRIPT_NAME#Item> data = new List<#SCRIPT_NAME#Item>() {
+#Item_Data#
+        };
+	}
+
+    /// <summary>
+    /// #SCRIPT_NAME#表数据项
+    /// </summary>
+    public struct #SCRIPT_NAME#Item
+    {
+#Item_Struct#
+    }
+}

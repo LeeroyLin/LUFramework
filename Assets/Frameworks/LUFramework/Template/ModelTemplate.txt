@@ -1,0 +1,55 @@
+﻿/*
+ * 时间 : #CREATE_DATE#
+ * 作者 : #DEVELOPER#
+ * 项目 : #PROJ_NAME#
+ * 描述 : 数据模型类 - 模型层
+ */
+
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using LUFramework;
+
+namespace #NAMESPACE#
+{
+    /// <summary>
+    /// 数据模型类 - 模型层
+    /// </summary>
+	public class #SCRIPT_NAME# : BaseModel
+	{
+		#region 保护字段
+        #endregion
+
+        #region 构造函数
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        public #SCRIPT_NAME#() : base()
+        {
+			
+        }
+        #endregion
+		
+		#region 重写方法
+        /// <summary>
+        /// 初始化数据
+        /// </summary>
+        public override void InitData()
+        {
+			
+		}
+		
+        /// <summary>
+        /// 注册处理方法
+        /// </summary>
+        protected override void RegisterHandlers()
+        {
+			
+		}
+		#endregion
+		
+		#region UI事件方法
+		
+		#endregion
+	}
+}

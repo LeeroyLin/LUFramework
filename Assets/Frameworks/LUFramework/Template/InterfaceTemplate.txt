@@ -1,0 +1,19 @@
+﻿/*
+ * 时间 : #CREATE_DATE#
+ * 作者 : #DEVELOPER#
+ * 项目 : #PROJ_NAME#
+ * 描述 : 
+ */
+
+using UnityEngine;
+
+namespace #NAMESPACE#
+{
+    /// <summary>
+    /// 
+    /// </summary>
+	public interface #SCRIPT_NAME#
+	{
+		
+	}
+}

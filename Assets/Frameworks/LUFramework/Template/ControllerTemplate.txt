@@ -1,0 +1,46 @@
+﻿/*
+ * 时间 : #CREATE_DATE#
+ * 作者 : #DEVELOPER#
+ * 项目 : #PROJ_NAME#
+ * 描述 : 控制类 - 控制层
+ */
+
+using System.Collections.Generic;
+using UnityEngine;
+using LUFramework;
+
+namespace #NAMESPACE#
+{
+    /// <summary>
+    /// 控制类 - 控制层
+    /// </summary>
+	public class #SCRIPT_NAME# : BaseController 
+	{
+		#region 私有字段
+		#endregion
+				
+		#region 默认回调
+		/// <summary>
+		/// 开始后调用
+		/// </summary>
+		void Start () 
+		{
+
+		}
+		#endregion
+		
+		#region 重写方法
+        /// <summary>
+        /// 注册处理方法
+        /// </summary>
+        protected override void RegisterHandlers()
+        {
+#Register_Handler#
+		}
+		#endregion
+		
+		#region 处理方法
+#Handler_Func#
+		#endregion
+	}
+}
