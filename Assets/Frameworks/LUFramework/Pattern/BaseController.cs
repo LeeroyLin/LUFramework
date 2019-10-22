@@ -25,12 +25,34 @@ namespace LUFramework
         /// </summary>
         void Awake()
         {
+            // 唤醒后调用
+            OnAwake();
+        }
+
+        /// <summary>
+        /// 开始后调用
+        /// </summary>
+        void Start()
+        {
             // 注册处理函数
             RegisterHandlers();
+
+            // 开始后调用
+            OnStart();
         }
         #endregion
 
         #region 虚方法
+        /// <summary>
+        /// 唤醒后调用
+        /// </summary>
+        protected virtual void OnAwake() { }
+
+        /// <summary>
+        /// 开始后调用
+        /// </summary>
+        protected virtual void OnStart() { }
+
         /// <summary>
         /// 注册处理函数
         /// </summary>

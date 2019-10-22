@@ -65,8 +65,9 @@ namespace LUFramework
         /// <param name="capacity">最大容量</param>
         public void Recover(string tag, GameObject obj, int capacity = 0)
         {
+            PoolItem item;
             // 是否有该标签的对象池
-            if (_poolDic.TryGetValue(tag, out PoolItem item))
+            if (_poolDic.TryGetValue(tag, out item))
             {
                 // 是否满了
                 if (item.IsFull())
@@ -110,31 +111,38 @@ namespace LUFramework
         /// </summary>
         /// <param name="tag">标签</param>
         /// <param name="createFun">创造函数，如果对象池没有则通过该方法创造</param>
-        public GameObject TryGet(string tag, Func<GameObject> createFun)
+        /// <param name="initFun">初始化函数，对物体进行处理</param>
+        public GameObject TryGet(string tag, Func<GameObject> createFun, Func<GameObject, GameObject> initFun = null)
         {
-            // 是否有该标签的对象池
-            if (_poolDic.TryGetValue(tag, out PoolItem item))
+            GameObject obj = null;
+            PoolItem item;
+            // 是否有该标签的对象池 且 列表中还有物品
+            if (_poolDic.TryGetValue(tag, out item) && item.ItemList.Count > 0)
             {
                 // 获得对应物体
-                GameObject obj = item.ItemList[item.ItemList.Count - 1];
+                obj = item.ItemList[item.ItemList.Count - 1];
 
-                // 移除
+                // 从列表移除
                 item.ItemList.RemoveAt(item.ItemList.Count - 1);
-                
-                // 显示
-                obj.SetActive(true);
 
-                // 设置父节点
-                obj.transform.SetParent(null);
-
-                // 返回该对象
-                return obj;
             }
             else
             {
                 // 返回新建的
-                return createFun();
+                obj = createFun();
             }
+
+            // 初始化操作
+            if (initFun != null)
+            {
+                obj = initFun(obj);
+            }
+
+            // 显示
+            obj.SetActive(true);
+
+            // 返回该对象
+            return obj;
         }
         #endregion
     }

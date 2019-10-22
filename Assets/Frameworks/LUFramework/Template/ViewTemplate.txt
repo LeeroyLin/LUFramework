@@ -28,9 +28,9 @@ namespace #NAMESPACE#
 		/// <summary>
 		/// 开始后调用
 		/// </summary>
-		void Start () 
+		new void Start () 
 		{
-
+            base.Start();
 		}
 		#endregion
 		

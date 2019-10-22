@@ -80,7 +80,7 @@ namespace LUFramework
         public static void CreateInterface()
         {
             // 创建资源
-            CreateAsset("NewLUFInterface.cs", Config.ENUM_TEMPLATE_PATH);
+            CreateAsset("NewLUFInterface.cs", Config.INTERFACE_TEMPLATE_PATH);
 
             // 标记
             _isInterface = true;
@@ -125,7 +125,8 @@ namespace LUFramework
             public override void Action(int instanceId, string pathName, string resourceFile)
             {
                 // 获得模板处理后的内容
-                string content = Helper.GetTemplateContent(pathName, resourceFile, out string newPath, srcFileName => {
+                string newPath;
+                string content = Helper.GetTemplateContent(pathName, resourceFile, out newPath, srcFileName => {
                     // 如果是接口
                     if (_isInterface)
                     {

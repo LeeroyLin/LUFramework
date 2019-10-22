@@ -101,7 +101,8 @@ namespace LUFramework
             }
 
             // 尝试获得UIBehaviour组件
-            if (TryGetUIBehaviour(node, out string uiType))
+            string uiType;
+            if (TryGetUIBehaviour(node, out uiType))
             {
                 // 存入字典
                 _uiTypeDic.Add(rectTrans, uiType);
@@ -141,7 +142,7 @@ namespace LUFramework
                 currentType = component.GetType().ToString();
 
                 // 如果不是图片
-                if (uiType != currentType && currentType != "UnityEngine.UI.Mask")
+                if (uiType != currentType && currentType != "UnityEngine.UI.Mask" && currentType != "UnityEngine.UI.HorizontalLayoutGroup" && currentType != "UnityEngine.UI.VerticalLayoutGroup" && currentType != "UnityEngine.UI.GridLayoutGroup")
                 {
                     // 记录
                     uiType = currentType;
@@ -188,7 +189,8 @@ namespace LUFramework
             }
 
             // 获得模板处理后的内容
-            string content = Helper.GetTemplateContent(path, Config.VIEW_TEMPLATE_PATH, out string newPath);
+            string newPath;
+            string content = Helper.GetTemplateContent(path, Config.VIEW_TEMPLATE_PATH, out newPath);
 
             // 替换
             content = SetUIContent(content);
@@ -233,13 +235,14 @@ namespace LUFramework
                 if (item.Value == "Button")
                 {
                     // 获得组件名
-                    componentName = GetComponentName(item.Value, item.Key.name, out string zhName);
+                    string zhName;
+                    componentName = GetComponentName(item.Value, item.Key.name, out zhName);
 
                     // 获得首字母大写的名字
                     string newName = Helper.UpperFirstChar(componentName.Replace("_", ""));
 
                     // 添加配置项
-                    AddConfigItem(selectionName, "UI_" + newName, "点击" + newName + "按钮 通知");
+                    AddConfigItem(selectionName, "UI_" + selectionName + "_" + newName, "点击" + newName + "按钮 通知");
                 }
             }
         }
@@ -252,11 +255,8 @@ namespace LUFramework
         /// <returns>合格的视图名</returns>
         private static string GetAvailableViewName(string srcName)
         {
-            // 最小化
-            string lowerName = srcName.ToLower();
-
             // 是否没有视图名
-            if (!srcName.Contains("form") && !srcName.Contains("view") && !srcName.Contains("page"))
+            if (!srcName.ToLower().Contains("form") && !srcName.ToLower().Contains("view") && !srcName.ToLower().Contains("page"))
             {
                 // 结尾增加
                 srcName += "Form";
@@ -286,7 +286,8 @@ namespace LUFramework
             foreach (KeyValuePair<RectTransform, string> item in _uiTypeDic)
             {
                 // 获得组件名
-                componentName = GetComponentName(item.Value, item.Key.name, out string zhName);
+                string zhName;
+                componentName = GetComponentName(item.Value, item.Key.name, out zhName);
 
                 // 拼接组件内容
                 JointComponentContent(sbComponent, componentName, item.Value, zhName);
@@ -433,6 +434,8 @@ namespace LUFramework
                 sb.Append("()\n\t\t{\n");
                 sb.Append("\t\t\t// 发送通知\n");
                 sb.Append("\t\t\tSendNotification(NotificationConfig.UI_");
+                sb.Append(GetAvailableViewName(Selection.activeGameObject.name).ToUpper());
+                sb.Append("_");
                 sb.Append(newName.ToUpper());
                 sb.Append(");\n\t\t}\n");
             }
@@ -575,7 +578,8 @@ namespace LUFramework
             path = Path.Combine(path, "NotificationConfig.cs");
 
             // 获得模板处理后的内容
-            string content = Helper.GetTemplateContent(path, Config.NOTIFICATION_CONFIG_TEMPLATE_PATH, out string newPath);
+            string newPath;
+            string content = Helper.GetTemplateContent(path, Config.NOTIFICATION_CONFIG_TEMPLATE_PATH, out newPath);
             
             // 创建资源
             File.WriteAllText(newPath, content, new UTF8Encoding(true, false));
@@ -614,7 +618,7 @@ namespace LUFramework
             {
                 // 获得该行信息
                 lineText = lines[i];
-
+                
                 // 是否是标记
                 if (lineText.Replace(" ", "") == "#Config_Item#")
                 {
@@ -632,11 +636,25 @@ namespace LUFramework
                 {
                     break;
                 }
-                else if (isFindTargetTitle && lineText.Replace(" ", "").Replace("\t", "").Replace("\n", "") == "#endregion")
+                else if (lineText.Replace(" ", "").Replace("\t", "").Replace("\n", "") == "#endregion")
                 {
-                    // 添加配置项目
-                    lines[i] = GetConfigItemString(title, configName, summary, false) + lines[i];
-                    break;
+                    // 是否找到了该标题
+                    if (isFindTargetTitle)
+                    {
+                        // 添加配置项目
+                        lines[i] = GetConfigItemString(title, configName, summary, false) + lines[i];
+                        break;
+                    }
+                    else
+                    {
+                        // 是否是最后了
+                        if (lines[i + 1].Contains("}"))
+                        {
+                            // 添加新的标题组
+                            lines[i] += "\n\n" + GetConfigItemString(title, configName, summary, true);
+                            break;
+                        }
+                    }
                 }
             }
 
@@ -717,7 +735,8 @@ namespace LUFramework
             }
 
             // 获得模板处理后的内容
-            string content = Helper.GetTemplateContent(path, Config.CONTROLLER_TEMPLATE_PATH, out string newPath);
+            string newPath;
+            string content = Helper.GetTemplateContent(path, Config.CONTROLLER_TEMPLATE_PATH, out newPath);
 
             // 替换
             content = SetHandlerFunc(content);
@@ -761,7 +780,8 @@ namespace LUFramework
                 if (item.Value == "Button")
                 {
                     // 获得组件名
-                    componentName = GetComponentName(item.Value, item.Key.name, out string zhName);
+                    string zhName;
+                    componentName = GetComponentName(item.Value, item.Key.name, out zhName);
 
                     // 获得首字母大写的名字
                     string newName = Helper.UpperFirstChar(componentName.Replace("_", ""));
@@ -770,6 +790,8 @@ namespace LUFramework
                     sbRegister.Append("\t\t\t// 注册");
                     sbRegister.Append(newName);
                     sbRegister.Append("处理方法\n\t\t\tRegisterHandler(NotificationConfig.UI_");
+                    sbRegister.Append(GetAvailableViewName(Selection.activeGameObject.name).ToUpper());
+                    sbRegister.Append("_");
                     sbRegister.Append(newName.ToUpper());
                     sbRegister.Append(", OnClick");
                     sbRegister.Append(newName);
@@ -800,11 +822,8 @@ namespace LUFramework
         /// <returns>合格的控制类名</returns>
         private static string GetAvailableControllerName(string srcName)
         {
-            // 最小化
-            string lowerName = srcName.ToLower();
-
             // 是否没有控制类名
-            if (!srcName.Contains("controller"))
+            if (!srcName.ToLower().Contains("controller"))
             {
                 // 结尾增加
                 srcName += "Controller";

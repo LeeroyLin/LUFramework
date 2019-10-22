@@ -19,17 +19,15 @@ namespace #NAMESPACE#
 		#region 私有字段
 		#endregion
 				
-		#region 默认回调
-		/// <summary>
-		/// 开始后调用
-		/// </summary>
-		void Start () 
-		{
-
-		}
-		#endregion
-		
 		#region 重写方法
+        /// <summary>
+        /// 开始后回调
+        /// </summary>
+        protected override void OnStart()
+        {
+            base.OnStart();
+        }
+
         /// <summary>
         /// 注册处理方法
         /// </summary>

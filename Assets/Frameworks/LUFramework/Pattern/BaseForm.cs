@@ -16,21 +16,31 @@ namespace LUFramework
     /// </summary>
 	public abstract class BaseForm : MonoBehaviour, INotifier 
 	{
-		#region 保护字段
+        #region 属性
+        /// <summary>
+        /// 参数
+        /// </summary>
+        public object Args { get; set; }
 		#endregion
 		
 		#region 默认回调
         /// <summary>
         /// 唤醒后调用
         /// </summary>
-        void Awake()
+        protected void Awake()
         {
             // 获得UI控件
             GetUI();
 
             // 绑定事件
             BindEvent();
+        }
 
+        /// <summary>
+        /// 开始后调用
+        /// </summary>
+        protected void Start()
+        {
             // 注册处理函数
             RegisterHandlers();
         }
@@ -53,6 +63,11 @@ namespace LUFramework
         /// 注册处理函数
         /// </summary>
         protected virtual void RegisterHandlers() { }
+
+        /// <summary>
+        /// 即将销毁调用
+        /// </summary>
+        protected virtual void OnDestroy() { }
         #endregion
 
         #region 接口实现方法
@@ -99,6 +114,7 @@ namespace LUFramework
         /// </summary>
         public void Destroy()
         {
+            OnDestroy();
             Destroy(gameObject);
         }
         #endregion

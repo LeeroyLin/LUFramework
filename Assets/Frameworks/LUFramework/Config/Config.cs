@@ -1,8 +1,8 @@
 /*
  * 时间 : 2019/7/17
  * 作者 : LeeroyLin
- * 项目 : LU框架
- * 描述 : 配置类
+ * 项目 : LUFramwork
+ * 描述 : Config
  */
 
 using UnityEngine;
@@ -16,21 +16,21 @@ namespace LUFramework
 	{
         #region Init
         /// <summary>
-        /// 命名空间
-        /// Auto或空代表自动根据产品名生成，取产品名的大写，如果没有大写则取全产品名
-        /// 如果设置有其他的命名空间则采用设置的命名空间
+        /// Namespace
+        /// "Auto" means to use the project name.
+        /// You can change it to what you want.
         /// </summary>
         public static readonly string NAME_SPACE = "Auto";
 
         /// <summary>
-        /// 项目名
+        /// ProjectName
         /// </summary>
-        public static readonly string PROJ_NAME = "";
+        public static readonly string PROJ_NAME = "ProjectName";
 
         /// <summary>
-        /// 作者
+        /// Author
         /// </summary>
-        public static readonly string DEVELOPER = "LeeroyLin";
+        public static readonly string DEVELOPER = "Author";
 
         #endregion
 
@@ -90,18 +90,18 @@ namespace LUFramework
         /// <summary>
         /// 视图脚本路径
         /// </summary>
-        public static readonly string VIEW_SCRIPT_PATH = "Assets/Scripts/MVC/View";
+        public static readonly string VIEW_SCRIPT_PATH = "Assets/Scripts/MVC/Views";
         /// <summary>
         /// 数据模型脚本路径
         /// </summary>
-        public static readonly string MODEL_SCRIPT_PATH = "Assets/Scripts/MVC/Model";
+        public static readonly string MODEL_SCRIPT_PATH = "Assets/Scripts/MVC/Models";
         /// <summary>
         /// 控制脚本路径
         /// </summary>
-        public static readonly string CONTROLLER_SCRIPT_PATH = "Assets/Scripts/MVC/Controller";
+        public static readonly string CONTROLLER_SCRIPT_PATH = "Assets/Scripts/MVC/Controllers";
         #endregion
 
-        #region 消息中心
+        #region MessageCenter
         /// <summary>
         /// 消息中心配置路径
         /// </summary>
@@ -126,6 +126,12 @@ namespace LUFramework
         /// Resources下的相对路径
         /// </summary>
         public static readonly string MODAL_PATH = "LUFramework/ModalForm";
+
+        /// <summary>
+        /// 模态半透明的透明度
+        /// 0-1
+        /// </summary>
+        public static readonly float MODAL_ALPHA = 0.67f;
         #endregion
 
         #region Pool

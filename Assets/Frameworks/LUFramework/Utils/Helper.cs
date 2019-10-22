@@ -169,9 +169,9 @@ namespace LUFramework
 
             // 获得文件名
             string fileName = Path.GetFileNameWithoutExtension(pathName);
-
             // 获得有效字符串
-            if (GetAvailableString(fileName, out string availableName))
+            string availableName;
+            if (GetAvailableString(fileName, out availableName))
             {
                 fileName = UpperFirstChar(availableName);
             }

@@ -7,7 +7,6 @@
 
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using LUFramework;
 
 namespace #NAMESPACE#
@@ -15,9 +14,9 @@ namespace #NAMESPACE#
     /// <summary>
     /// 数据模型类 - 模型层
     /// </summary>
-	public class #SCRIPT_NAME# : BaseModel
+	public class #SCRIPT_NAME# : BaseModel<#SCRIPT_NAME#>
 	{
-		#region 保护字段
+		#region 属性
         #endregion
 
         #region 构造函数
@@ -38,18 +37,9 @@ namespace #NAMESPACE#
         {
 			
 		}
-		
-        /// <summary>
-        /// 注册处理方法
-        /// </summary>
-        protected override void RegisterHandlers()
-        {
-			
-		}
 		#endregion
 		
-		#region UI事件方法
-		
+		#region 其他方法
 		#endregion
 	}
 }

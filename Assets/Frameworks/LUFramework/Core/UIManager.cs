@@ -9,6 +9,7 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace LUFramework
 {
@@ -21,7 +22,14 @@ namespace LUFramework
         /// <summary>
         /// UI根节点
         /// </summary>
+        [HideInInspector]
         public Transform canvas;
+
+        /// <summary>
+        /// 比例
+        /// </summary>
+        [HideInInspector]
+        public Vector2 resolution;
         #endregion
 
         #region 私有字段
@@ -83,6 +91,12 @@ namespace LUFramework
             _cacheFormDic = new Dictionary<string, BaseForm>();
             _shownFormDic = new Dictionary<string, BaseForm>();
             _modalDic = new Dictionary<BaseForm, GameObject>();
+
+            // 获得canvas
+            GetCanvas();
+
+            // 获得缩放值
+            resolution = canvas.GetComponent<CanvasScaler>().referenceResolution;
         }
 
         /// <summary>
@@ -96,7 +110,7 @@ namespace LUFramework
                 // 获得三个节点
                 _nodeArray[0] = canvas.Find("Normal");
                 _nodeArray[1] = canvas.Find("Fixed");
-                _nodeArray[2] = canvas.Find("Popup");
+                _nodeArray[2] = canvas.Find("PopUp");
             }
         }
 
@@ -151,8 +165,9 @@ namespace LUFramework
         /// <returns>窗体对象</returns>
         private BaseForm LoadFormOrFromCache(string name)
         {
+            BaseForm form;
             // 是否缓存字典有该窗体
-            if (_cacheFormDic.TryGetValue(name, out BaseForm form))
+            if (_cacheFormDic.TryGetValue(name, out form))
             {
                 // 显示
                 form.Show();
@@ -293,8 +308,9 @@ namespace LUFramework
         /// <param name="modalType">模态类型</param>
         private void SetModal(BaseForm form, EFormModalType modalType)
         {
+            GameObject modal;
             // 尝试从模态字典里获得该窗体的模态
-            _modalDic.TryGetValue(form, out GameObject modal);
+            _modalDic.TryGetValue(form, out modal);
 
             // 是否不要模态
             if (modalType == EFormModalType.None)
@@ -324,6 +340,9 @@ namespace LUFramework
                     {
                         return;
                     }
+
+                    // 添加到字典
+                    _modalDic.Add(form, modal);
                 }
             }
 
@@ -332,7 +351,7 @@ namespace LUFramework
 
             // 放到窗体之下
             modal.transform.SetSiblingIndex(form.transform.GetSiblingIndex());
-
+            
             // 根据不同的模态类型设置颜色
             Color modalColor = Color.white;
             switch (modalType)
@@ -346,7 +365,7 @@ namespace LUFramework
                 // 半透明
                 case EFormModalType.Translucency:
                 {
-                    modalColor = new Color(0, 0, 0, 0.5f);
+                    modalColor = new Color(0, 0, 0, Config.MODAL_ALPHA);
                 }
                 break;
                 // 不透明
@@ -356,6 +375,8 @@ namespace LUFramework
                 }
                 break;
             }
+
+            modal.GetComponent<Image>().color = modalColor;
         }
 
         /// <summary>
@@ -367,7 +388,7 @@ namespace LUFramework
             try
             {
                 // 生成
-                GameObject modalObj = Instantiate(Resources.Load(Config.MODAL_PATH)) as GameObject;
+                GameObject modalObj = Instantiate(Resources.Load(Config.MODAL_PATH), _nodeArray[0]) as GameObject;
 
                 // 修改名字
                 modalObj.name = Path.GetFileName(Config.MODAL_PATH);
@@ -392,8 +413,9 @@ namespace LUFramework
         /// <param name="formType">窗体类型</param>
         /// <param name="displayType">显示类型</param>
         /// <param name="modalType">模态类型</param>
+        /// <param name="args">传递的参数</param>
         /// <returns>是否成功显示</returns>
-        public bool ShowForm(string name, EFormType formType, EFormDisplayType displayType, EFormModalType modalType = EFormModalType.None)
+        public bool ShowForm(string name, EFormType formType, EFormDisplayType displayType, EFormModalType modalType = EFormModalType.None, object args = null)
         {
             // 加载或从缓存获取窗体对象
             BaseForm form = LoadFormOrFromCache(name);
@@ -416,6 +438,9 @@ namespace LUFramework
             // 模态处理
             SetModal(form, modalType);
 
+            // 传递参数
+            form.Args = args;
+
             return true;
         }
 
@@ -427,7 +452,83 @@ namespace LUFramework
         /// <returns>是否成功关闭</returns>
         public bool CloseForm(string name, bool isDestroyHiddenForms)
         {
-            return true;
+            BaseForm form = null;
+            BaseForm otherForm = null;
+            GameObject modal = null;
+
+            if (_shownFormDic.TryGetValue(name, out form))
+            {
+                // 是否有模态
+                if (_modalDic.TryGetValue(form, out modal))
+                {
+                    // 回收该模态
+                    PoolManager.Instance.Recover(Config.TAG_MODAL, modal);
+
+                    // 从字典中移除
+                    _modalDic.Remove(form);
+                }
+
+                // 移除界面
+                Destroy(form.gameObject);
+
+                // 从字典移除
+                _shownFormDic.Remove(name);
+                _cacheFormDic.Remove(name);
+
+                // 遍历该节点下的所有页面
+                foreach (Transform item in form.transform)
+                {
+                    // 如果隐藏了
+                    if (!item.gameObject.activeSelf)
+                    {
+                        // 获得页面对象
+                        otherForm = item.GetComponent<BaseForm>();
+
+                        // 是否不是页面
+                        if (otherForm == null)
+                        {
+                            continue;
+                        }
+
+                        // 尝试获得模态
+                        if (_modalDic.TryGetValue(otherForm, out modal))
+                        {
+                            // 回收该模态
+                            PoolManager.Instance.Recover(Config.TAG_MODAL, modal);
+
+                            // 从字典中移除
+                            _modalDic.Remove(otherForm);
+                        }
+
+                        // 移除
+                        Destroy(otherForm.gameObject);
+                    }
+                }
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 获得窗体
+        /// </summary>
+        /// <param name="name">窗体名</param>
+        /// <returns>窗体节点</returns>
+        public Transform GetForm(string name)
+        {
+            BaseForm form;
+
+            // 尝试获取
+            if (_cacheFormDic.TryGetValue(name, out form))
+            {
+                return form.transform;
+            }
+
+            return null;
         }
 		#endregion
 	}

@@ -66,7 +66,8 @@ namespace LUFramework
             public override void Action(int instanceId, string pathName, string resourceFile)
             {
                 // 获得模板处理后的内容
-                string content = Helper.GetTemplateContent(pathName, resourceFile, out string newPath, srcFileName => srcFileName);
+                string newPath;
+                string content = Helper.GetTemplateContent(pathName, resourceFile, out newPath, srcFileName => srcFileName);
 
                 // 写入文件
                 File.WriteAllText(newPath, content);

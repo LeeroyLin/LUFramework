@@ -14,7 +14,7 @@ namespace LUFramework
     /// <summary>
     /// 数据模型基类
     /// </summary>
-	public abstract class BaseModel : INotifier 
+	public class BaseModel<T> : SingletonClass<T> where T : class, new()
 	{
         #region 保护字段
         #endregion
@@ -27,45 +27,24 @@ namespace LUFramework
         {
             // 初始化数据
             InitData();
-
-            // 注册处理函数
-            RegisterHandlers();
         }
         #endregion
-
-        #region 抽象方法
+        
+        #region 虚方法
         /// <summary>
         /// 初始化数据
         /// </summary>
-        public abstract void InitData();
-        #endregion
-
-        #region 虚方法
-        /// <summary>
-        /// 注册处理函数
-        /// </summary>
-        protected virtual void RegisterHandlers() { }
-        #endregion
-
-        #region 接口实现方法
-        /// <summary>
-        /// 注册处理函数
-        /// </summary>
-        /// <param name="tag">标签</param>
-        /// <param name="handler">处理方法</param>
-        public void RegisterHandler(string tag, Action<object> handler)
+        public virtual void InitData()
         {
-            NotificationManager.Instance.RegisgerHandler(tag, handler);
+
         }
 
         /// <summary>
-        /// 发送通知
+        /// 存储到本地
         /// </summary>
-        /// <param name="tag">标签</param>
-        /// <param name="args"></param>
-        public void SendNotification(string tag, object args = null)
+        public virtual void Save2Local()
         {
-            NotificationManager.Instance.Execute(tag, args);
+
         }
         #endregion
     }

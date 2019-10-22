@@ -43,8 +43,6 @@ namespace LUFramework
             return result.Tables[0];
 
         }
-
-
         #endregion
     }
 }

@@ -86,7 +86,7 @@ namespace LUFramework
             // 下标
             int index = 0;
 
-            Coroutine coroutine = default;
+            Coroutine coroutine = default(Coroutine);
             Sprite sprite;
 
             // 循环执行
@@ -119,7 +119,7 @@ namespace LUFramework
                     }
                 }
                 
-                if(coroutine != default)
+                if(coroutine != default(Coroutine))
                     yield return coroutine;
             }
         }

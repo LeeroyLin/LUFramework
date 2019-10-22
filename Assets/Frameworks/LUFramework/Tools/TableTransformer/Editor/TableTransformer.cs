@@ -6,6 +6,7 @@
  */
 
 using LUFramework;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -102,6 +103,8 @@ namespace LUFramework
 
             GUILayout.Space(10);
 
+            GUILayout.BeginHorizontal();
+
             // 如果有空的
             if (string.IsNullOrEmpty(_sourcePath) || string.IsNullOrEmpty(_targetPath))
             {
@@ -130,8 +133,6 @@ namespace LUFramework
         /// </summary>
         public void StartTransform()
         {
-            StringBuilder sb = new StringBuilder();
-
             // 是否没有原路径
             if (!Directory.Exists(_sourcePath))
             {
@@ -163,10 +164,6 @@ namespace LUFramework
             string listContent = "";
             // 数据内容
             string dataContent = "";
-            // 单元格内容
-            string cellValue = "";
-            // 项类型
-            string cellType = "";
             
             // 遍历所有路径
             foreach (var filePath in filePathArray)
@@ -188,105 +185,19 @@ namespace LUFramework
 
                 // 初始化列表
                 titleList = new List<string>();
+                
+                // 拼接结构体内容
+                structContent = JointStructContent(table, titleList);
 
-                // 获得标题
-                sb = new StringBuilder();
-                for (int i = 0; i < table.Columns.Count; i++)
-                {
-                    // 获得单元格内容
-                    cellValue = GetAvailableName(table.Rows[3][i].ToString());
-
-                    // 添加到标题列表
-                    titleList.Add(cellValue);
-
-                    // 添加到结构体内容中
-                    sb.Append(Helper.GetSummaryString(table.Rows[1][i].ToString()));
-                    sb.Append("\t\tpublic ");
-                    sb.Append(table.Rows[2][i].ToString());
-                    sb.Append(" ");
-                    sb.Append(cellValue);
-                    sb.Append(" { get; set; }");
-
-                    // 是否不是最后
-                    if (i != table.Columns.Count - 1)
-                    {
-                        sb.Append("\n");
-                    }
-                }
-
-                structContent = sb.ToString();
-
-                // 遍历项
-                sb = new StringBuilder();
-                for (int i = 4; i < table.Rows.Count; i++)
-                {
-                    sb.Append("\t\t\t// ");
-                    sb.Append(i - 4);
-                    sb.Append("\n\t\t\tnew ");
-                    sb.Append(fileName);
-                    sb.Append("Item()\n\t\t\t{\n");
-
-                    for (int t = 0; t < table.Columns.Count; t++)
-                    {
-                        // 获得项类型
-                        cellType = table.Rows[2][t].ToString().ToLower();
-
-                        sb.Append("\t\t\t\t");
-                        sb.Append(titleList[t]);
-                        sb.Append(" = ");
-
-                        // 判断类型
-                        switch (cellType)
-                        {
-                            case "string":
-                            {
-                                sb.Append("\"");
-                                sb.Append(table.Rows[i][t].ToString());
-                                sb.Append("\"");
-                            }
-                            break;
-                            case "int":
-                            {
-                                sb.Append(table.Rows[i][t].ToString());
-                            }
-                            break;
-                            case "float":
-                            {
-                                sb.Append(table.Rows[i][t].ToString());
-                                sb.Append("f");
-                            }
-                            break;
-                        }
-
-                        // 是否不是最后
-                        if (t != table.Columns.Count - 1)
-                        {
-                            sb.Append(",\n");
-                        }
-                        else
-                        {
-                            sb.Append("\n");
-                        }
-                    }
-
-                    // 是否不是最后
-                    if (i != table.Rows.Count - 1)
-                    {
-                        sb.Append("\t\t\t},\n");
-                    }
-                    else
-                    {
-                        sb.Append("\t\t\t}");
-                    }
-                }
-
-                listContent = sb.ToString();
+                // 拼接列表内容
+                listContent = JointListContent(table, titleList, fileName);
 
                 // 获得路径
                 string path = Path.Combine(_targetPath.Substring(_targetPath.IndexOf("Assets")), fileName + ".cs");
 
                 // 拼接模版
-                dataContent = Helper.GetTemplateContent(path, Config.TABLE_TEMPLATE_PATH, out string newPath, null);
+                string newPath;
+                dataContent = Helper.GetTemplateContent(path, Config.TABLE_TEMPLATE_PATH, out newPath, null);
 
                 // 替换内容
                 dataContent = dataContent.Replace("#Item_Data#", listContent).Replace("#Item_Struct#", structContent);
@@ -298,6 +209,209 @@ namespace LUFramework
         }
 
         /// <summary>
+        /// 拼接结构体内容
+        /// </summary>
+        /// <param name="table">表对象</param>
+        /// <param name="titleList">标题列表</param>
+        /// <returns>拼接后的结构体内容</returns>
+        private string JointStructContent(DataTable table, List<string> titleList)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            string cellValue = "";
+
+            for (int i = 0; i < table.Columns.Count; i++)
+            {
+                // 获得单元格内容
+                cellValue = GetAvailableName(table.Rows[3][i].ToString());
+
+                // 添加到标题列表
+                titleList.Add(cellValue);
+
+                // 添加到结构体内容中
+                sb.Append(Helper.GetSummaryString(table.Rows[1][i].ToString()));
+                sb.Append("\t\tpublic ");
+                sb.Append(table.Rows[2][i].ToString());
+                sb.Append(" ");
+                sb.Append(cellValue);
+                sb.Append(" { get; set; }");
+
+                // 是否不是最后
+                if (i != table.Columns.Count - 1)
+                {
+                    sb.Append("\n");
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// 拼接列表内容
+        /// </summary>
+        /// <param name="table">表对象</param>
+        /// <param name="titleList">标题列表</param>
+        /// <param name="fileName">文件名</param>
+        /// <returns>拼接后的列表内容</returns>
+        private string JointListContent(DataTable table, List<string> titleList, string fileName)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            string cellType = "";
+
+            // 遍历项
+            for (int i = 4; i < table.Rows.Count; i++)
+            {
+                sb.Append("\t\t\t// ");
+                sb.Append(i - 4);
+                sb.Append("\n\t\t\tnew ");
+                sb.Append(fileName);
+                sb.Append("Item()\n\t\t\t{\n");
+
+                for (int t = 0; t < table.Columns.Count; t++)
+                {
+                    // 获得项类型
+                    cellType = table.Rows[2][t].ToString().ToLower();
+
+                    sb.Append("\t\t\t\t");
+                    sb.Append(titleList[t]);
+                    sb.Append(" = ");
+
+                    // 是否是数组
+                    if (cellType.Contains("["))
+                    {
+                        SetArrayString(sb, cellType, table.Rows[i][t].ToString().Replace("\"", "'"));
+                    }
+                    else
+                    {
+                        // 判断类型
+                        switch (cellType)
+                        {
+                            case "string":
+                            {
+                                SetCenterString(sb, table.Rows[i][t].ToString().Replace("\"", "'"), "\"", "\"", str => str);
+                            }
+                            break;
+                            case "int":
+                            {
+                                SetCenterString(sb, table.Rows[i][t].ToString(), "", "", str => str == "" ? "0" : str);
+                            }
+                            break;
+                            case "float":
+                            {
+                                SetCenterString(sb, table.Rows[i][t].ToString(), "", "f", str => str == "" ? "0" : str);
+                            }
+                            break;
+                        }
+                    }
+
+                    // 是否不是最后
+                    if (t != table.Columns.Count - 1)
+                    {
+                        sb.Append(",");
+                    }
+
+                    sb.Append("\n");
+                }
+
+                sb.Append("\t\t\t}");
+
+                // 是否不是最后
+                if (i != table.Rows.Count - 1)
+                {
+                    sb.Append(",\n");
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// 获得数组字符串
+        /// </summary>
+        /// <param name="sb">字符串构造器</param>
+        /// <param name="type">类型</param>
+        /// <param name="content">内容</param>
+        /// <returns>拼接后的数组字符串</returns>
+        private void SetArrayString(StringBuilder sb, string type, string content)
+        {
+            sb.Append("new ");
+            sb.Append(type);
+            sb.Append(" {\n");
+            
+            // 取出括号
+            content = content.Replace("[", "").Replace("]", "").Replace(" ", "");
+
+            // 获得每一项数据
+            string[] datas = content.Split(',');
+
+            if (datas.Length > 0 && datas[0] != "")
+            {
+                switch (type)
+                {
+                    case "int[]":
+                    {
+                        SetArrayItemString(sb, datas, "", "", str => str);
+                    }
+                    break;
+                    case "float[]":
+                    {
+                        SetArrayItemString(sb, datas, "", "f", str => str);
+                    }
+                    break;
+                    case "string[]":
+                    {
+                        SetArrayItemString(sb, datas, "\"", "\"", str => str);
+                    }
+                    break;
+                }
+            }
+
+            sb.Append("\t\t\t\t}");
+        }
+            
+        /// <summary>
+        /// 获得数组项字符串
+        /// </summary>
+        /// <param name="sb">字符串构造器</param>
+        /// <param name="datas">数据数组</param>
+        /// <param name="beforeString">开始的字符串</param>
+        /// <param name="afterString">结尾的字符串</param>
+        /// <param name="handlerFunc">内容处理函数</param>
+        /// <returns>数组项字符串</returns>
+        private void SetArrayItemString<T>(StringBuilder sb, string[] datas, string beforeString, string afterString, Func<string, T>handlerFunc)
+        {
+            // 遍历每一项
+            for (int i = 0; i < datas.Length; i++)
+            {
+                sb.Append("\t\t\t\t\t");
+                SetCenterString(sb, datas[i], beforeString, afterString, handlerFunc);
+                // 是否不是最后
+                if (i != datas.Length - 1)
+                {
+                    sb.Append(",");
+                }
+                sb.Append("\n");
+            }
+        }
+
+        /// <summary>
+        /// 获得中间字符串
+        /// </summary>
+        /// <param name="sb">字符串构造器</param>
+        /// <param name="strSrc">原字符串</param>
+        /// <param name="beforeString">之前字符串</param>
+        /// <param name="afterString">之后字符串</param>
+        /// <param name="handlerFunc">处理函数</param>
+        /// <returns>处理后的字符串</returns>
+        private void SetCenterString<T>(StringBuilder sb, string strSrc, string beforeString, string afterString, Func<string, T> handlerFunc)
+        {
+            sb.Append(beforeString);
+            sb.Append(handlerFunc(strSrc));
+            sb.Append(afterString);
+        }
+
+        /// <summary>
         /// 获得有效的名字
         /// 首字母大写，如果是数字首字母为下划线
         /// </summary>
@@ -305,17 +419,33 @@ namespace LUFramework
         /// <returns>有效的名字</returns>
         private string GetAvailableName(string src)
         {
+            // 去掉首尾空格
+            src = src.Trim();
+
             int ascii = src[0];
 
             // 如果是数字
             if (ascii >= 48 && ascii <= 57)
             {
-                return "_" + src;
+                src = "_" + src;
             }
             else
             {
-                return (src[0] + "").ToUpper() + src.Substring(1);
+                src = (src[0] + "").ToUpper() + src.Substring(1);
             }
+
+            // 查找空格
+            int index = src.IndexOf(" ");
+            while (index != -1)
+            {
+                // 将下一个字母大写 并 忽略掉空格
+                src = src.Substring(0, index) + (src[index + 1] + "").ToUpper() + src.Substring(index + 2);
+
+                // 查找空格
+                index = src.IndexOf(" ");
+            }
+
+            return src;
         }
         #endregion
     }
