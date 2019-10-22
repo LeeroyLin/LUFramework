@@ -1,5 +1,5 @@
 # LUFramework
-A unity framework. mvc, table transformer, UIManager, LogManager, NotificationManager...
+A unity framework. mvc, table transformer, ui manager, log manager, notification manager...
 
 # How to change the file header's info.
 A:</br>
