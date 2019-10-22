@@ -1,20 +1,17 @@
 # LUFramework
 A unity framework. mvc, table transformer, UIManager, LogManager, NotificationManager...
 
-Q:
 # How to change the file header's info.
 A:
 	1. Open the config class in "Frameworks/LUFramework/Config/Config.cs".
 	2. Change NAME_SPACE, PROJ_NAME and DEVELOPER.
 
 
-Q:
 # How to change the template.
 A:
 	You can change the template in "Frameworks/LUFramework/Template".
 
 
-Q: 
 # How to tranform a excel file to a class.
 A: 
 	1. Click menu item "LUFramework" - "TableTransformer" - "Transform".
@@ -24,7 +21,6 @@ A:
 	Note: The format of the excel file should be same with the files in "Example/TableTransformer/SourceTables".
 
 
-Q:
 # How to create a template script.
 A:
 	1. Right click Assets.
@@ -32,7 +28,6 @@ A:
 	3. Choose the script you want to create.
 
 
-Q:
 # How to create view and control scripts automatically.
 A:
 	1. Drag "Resources/LUFramework/LUFCanvas" to Hierarchy. This is the ui canvas.
@@ -48,7 +43,6 @@ A:
 	11. You can remove LUFCanvas too, it's not necessary.
 
 
-Q:
 # How to show form.
 A:
 	1. UIManager.Instance.ShowForm("TestForm", EFormType.Normal, EFormDisplayType.Single, EFormModalType.Translucency);
@@ -58,7 +52,6 @@ A:
 	1.4. param4: Modal type. What's your form's background? Can you click under form?
 
 
-Q:
 # How to use pool.
 A:
 	1. PoolManager.Instance.TryGet("Tag", GetObj);
@@ -70,7 +63,6 @@ A:
 	2.2. param2: The object you want to recover.
 
 
-Q: 
 # How to use notification center.
 A:
 	1. RegisterHandler("MsgTag", HandlerFunc);
