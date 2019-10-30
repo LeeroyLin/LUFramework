@@ -17,7 +17,7 @@ namespace #NAMESPACE#
         /// <summary>
         /// 数据
         /// </summary>
-        public static List<#SCRIPT_NAME#Item> data = new List<#SCRIPT_NAME#Item>() {
+        public readonly static IReadOnlyList<#SCRIPT_NAME#Item> data = new List<#SCRIPT_NAME#Item>() {
 #Item_Data#
         };
 	}

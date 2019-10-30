@@ -164,7 +164,7 @@ namespace LUFramework
             string listContent = "";
             // 数据内容
             string dataContent = "";
-            
+
             // 遍历所有路径
             foreach (var filePath in filePathArray)
             {
@@ -177,23 +177,26 @@ namespace LUFramework
                     continue;
                 }
 
-                // 获得文件名
-                fileName = GetAvailableName(Path.GetFileNameWithoutExtension(filePath));
-
                 // 获得表名
                 tableName = table.Rows[0][0].ToString();
 
                 // 初始化列表
                 titleList = new List<string>();
-                
-                // 拼接结构体内容
-                structContent = JointStructContent(table, titleList);
 
-                // 拼接列表内容
-                listContent = JointListContent(table, titleList, fileName);
+                // 获得文件名
+                fileName = Path.GetFileNameWithoutExtension(filePath);
 
                 // 获得路径
                 string path = Path.Combine(_targetPath.Substring(_targetPath.IndexOf("Assets")), fileName + ".cs");
+
+                // 修改
+                fileName = GetAvailableName(fileName);
+
+                // 拼接结构体内容
+                structContent = JointStructContent(table, titleList, fileName);
+
+                // 拼接列表内容
+                listContent = JointListContent(table, titleList, fileName);
 
                 // 拼接模版
                 string newPath;
@@ -213,12 +216,16 @@ namespace LUFramework
         /// </summary>
         /// <param name="table">表对象</param>
         /// <param name="titleList">标题列表</param>
+        /// <param name="fileName">文件名</param>
         /// <returns>拼接后的结构体内容</returns>
-        private string JointStructContent(DataTable table, List<string> titleList)
+        private string JointStructContent(DataTable table, List<string> titleList, string fileName)
         {
             StringBuilder sb = new StringBuilder();
+            List<string> typeList = new List<string>();
 
             string cellValue = "";
+
+            string valueTypeStr = "";
 
             for (int i = 0; i < table.Columns.Count; i++)
             {
@@ -228,18 +235,58 @@ namespace LUFramework
                 // 添加到标题列表
                 titleList.Add(cellValue);
 
+                valueTypeStr = table.Rows[2][i].ToString();
+                typeList.Add(valueTypeStr);
+                // 是否是数组
+                if (valueTypeStr.Contains("[") || valueTypeStr.Contains("]"))
+                {
+                    valueTypeStr = valueTypeStr.Replace("[", "").Replace("]", "");
+                    valueTypeStr = "IReadOnlyList<" + valueTypeStr + ">";
+                }
+                
                 // 添加到结构体内容中
                 sb.Append(Helper.GetSummaryString(table.Rows[1][i].ToString()));
-                sb.Append("\t\tpublic ");
-                sb.Append(table.Rows[2][i].ToString());
+                sb.Append("\t\tpublic readonly ");
+                sb.Append(valueTypeStr);
                 sb.Append(" ");
                 sb.Append(cellValue);
-                sb.Append(" { get; set; }");
+                sb.Append(";");
 
-                // 是否不是最后
-                if (i != table.Columns.Count - 1)
+                sb.Append("\n");
+
+                // 是否是最后
+                if (i == table.Columns.Count - 1)
                 {
-                    sb.Append("\n");
+                    sb.Append("\n\t\tpublic ");
+                    sb.Append(fileName);
+                    sb.Append("Item(");
+
+                    for (int t = 0; t < typeList.Count; t++)
+                    {
+                        sb.Append(typeList[t]);
+                        sb.Append(" ");
+                        sb.Append(titleList[t]);
+
+                        // 如果不为最后
+                        if (t != typeList.Count - 1)
+                        {
+                            sb.Append(", ");
+                        }
+                    }
+
+                    sb.Append(")\n");
+                    sb.Append("\t\t{\n");
+
+                    for (int t = 0; t < typeList.Count; t++)
+                    {
+                        sb.Append("\t\t\tthis.");
+                        sb.Append(titleList[t]);
+                        sb.Append(" = ");
+                        sb.Append(titleList[t]);
+                        sb.Append(";\n");
+                    }
+
+                    sb.Append("\t\t}\n");
                 }
             }
 
@@ -266,7 +313,7 @@ namespace LUFramework
                 sb.Append(i - 4);
                 sb.Append("\n\t\t\tnew ");
                 sb.Append(fileName);
-                sb.Append("Item()\n\t\t\t{\n");
+                sb.Append("Item(\n");
 
                 for (int t = 0; t < table.Columns.Count; t++)
                 {
@@ -274,8 +321,6 @@ namespace LUFramework
                     cellType = table.Rows[2][t].ToString().ToLower();
 
                     sb.Append("\t\t\t\t");
-                    sb.Append(titleList[t]);
-                    sb.Append(" = ");
 
                     // 是否是数组
                     if (cellType.Contains("["))
@@ -314,7 +359,7 @@ namespace LUFramework
                     sb.Append("\n");
                 }
 
-                sb.Append("\t\t\t}");
+                sb.Append("\t\t\t)");
 
                 // 是否不是最后
                 if (i != table.Rows.Count - 1)

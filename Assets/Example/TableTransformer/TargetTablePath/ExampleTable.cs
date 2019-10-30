@@ -1,5 +1,5 @@
 /*
- * 时间 : 2019/10/22
+ * 时间 : 2019/10/29
  * 作者 : Author
  * 项目 : ProjectName
  * 描述 : LUF表数据 - 转表自动生成
@@ -17,48 +17,46 @@ namespace LUF
         /// <summary>
         /// 数据
         /// </summary>
-        public static List<ExampleTableItem> data = new List<ExampleTableItem>() {
+        public readonly static IReadOnlyList<ExampleTableItem> data = new List<ExampleTableItem>() {
 			// 0
-			new ExampleTableItem()
-			{
-				Id = 1,
-				Price = 90f,
-				Name = "Starfish",
-				QualityList = new int[] {
+			new ExampleTableItem(
+				1,
+				90f,
+				"Starfish",
+				new int[] {
 					1,
 					2
 				},
-				ProbabilityList = new float[] {
+				new float[] {
 					0.6f,
 					0.4f
 				},
-				ListFriends = new string[] {
+				new string[] {
 					"'icon_starfish_white'",
 					"'icon_starfish_green'"
 				}
-			},
+			),
 			// 1
-			new ExampleTableItem()
-			{
-				Id = 2,
-				Price = 100f,
-				Name = "Sponge",
-				QualityList = new int[] {
+			new ExampleTableItem(
+				2,
+				100f,
+				"Sponge",
+				new int[] {
 					2,
 					3,
 					4
 				},
-				ProbabilityList = new float[] {
+				new float[] {
 					0.3f,
 					0.5f,
 					0.2f
 				},
-				ListFriends = new string[] {
+				new string[] {
 					"'icon_sponge_green'",
 					"'icon_sponge_blue'",
 					"'icon_sponge_purple'"
 				}
-			}
+			)
         };
 	}
 
@@ -70,26 +68,37 @@ namespace LUF
 		/// <summary>
 		/// ItemId
 		/// </summary>
-		public int Id { get; set; }
+		public readonly int Id;
 		/// <summary>
 		/// ItemPrice
 		/// </summary>
-		public float Price { get; set; }
+		public readonly float Price;
 		/// <summary>
 		/// ItemName
 		/// </summary>
-		public string Name { get; set; }
+		public readonly string Name;
 		/// <summary>
 		/// QualityList
 		/// </summary>
-		public int[] QualityList { get; set; }
+		public readonly IReadOnlyList<int> QualityList;
 		/// <summary>
 		/// ProbabilityList
 		/// </summary>
-		public float[] ProbabilityList { get; set; }
+		public readonly IReadOnlyList<float> ProbabilityList;
 		/// <summary>
 		/// IconList
 		/// </summary>
-		public string[] ListFriends { get; set; }
+		public readonly IReadOnlyList<string> ListFriends;
+
+		public ExampleTableItem(int Id, float Price, string Name, int[] QualityList, float[] ProbabilityList, string[] ListFriends)
+		{
+			this.Id = Id;
+			this.Price = Price;
+			this.Name = Name;
+			this.QualityList = QualityList;
+			this.ProbabilityList = ProbabilityList;
+			this.ListFriends = ListFriends;
+		}
+
     }
 }
